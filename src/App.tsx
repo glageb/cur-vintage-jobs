@@ -100,8 +100,11 @@ export default function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>Help Wanted</h1>
-        <p>Job listings — simple as the want ads.</p>
+        <p className="header__dateline" aria-hidden="true">
+          {new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        </p>
+        <h1 className="header__nameplate">Help Wanted</h1>
+        <p className="header__section">Classified advertising · Situations vacant</p>
       </header>
 
       <form
@@ -297,9 +300,10 @@ export default function App() {
       {!error && (displayCards.length > 0 || cards.length > 0) && (
         <>
           <div className="cards-results-bar">
-            <p className="status" style={{ padding: '0 0 0.5rem', textAlign: 'left', margin: 0 }}>
+            <span className="cards-results-bar__section">Classifieds</span>
+            <span className="cards-results-bar__count">
               {displayTotal} result{displayTotal !== 1 ? 's' : ''} — page {page} of {totalPages}
-            </p>
+            </span>
           </div>
           <div className="cards">
             {displayCards.map((job, index) => (

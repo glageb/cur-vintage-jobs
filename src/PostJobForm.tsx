@@ -6,6 +6,12 @@ import type { UserJobRecord, UserJobStatus } from './types'
 const MAX_DESCRIPTION_WORDS = 15
 const MAX_SKILLS = 8
 const CONDITIONS_OPTIONS = ['Full-time', 'Part-time', 'Remote', 'Hybrid', 'In office'] as const
+/** Full-time and Part-time are mutually exclusive. */
+const WORK_TYPE_GROUP = ['Full-time', 'Part-time'] as const
+/** Remote, Hybrid, and In office are mutually exclusive. */
+const WORK_PLACE_GROUP = ['Remote', 'Hybrid', 'In office'] as const
+/** Contract type: Permanent or Temporary (mutually exclusive, optional). */
+const CONTRACT_TYPE_OPTIONS = ['Permanent', 'Temporary'] as const
 
 function countWords(text: string): number {
   return text
@@ -25,6 +31,7 @@ export interface PostJobFormValues {
   description: string
   skills: string[]
   location: string
+  contractType: '' | 'Permanent' | 'Temporary'
   conditions: string[]
   payMin: string
   payMax: string
@@ -36,6 +43,7 @@ const emptyForm: PostJobFormValues = {
   description: '',
   skills: [],
   location: '',
+  contractType: '',
   conditions: [],
   payMin: '',
   payMax: '',
@@ -48,7 +56,8 @@ function buildUserJobRecord(
 ): UserJobRecord {
   const id = existingId ?? `user-${Date.now()}`
   const today = new Date().toISOString().slice(0, 10)
-  const snippet = values.conditions.length > 0 ? values.conditions.join(' · ') : '—'
+  const snippetParts = [values.contractType, ...values.conditions].filter(Boolean)
+  const snippet = snippetParts.length > 0 ? snippetParts.join(' · ') : '—'
   const desc = values.description.trim()
   const descriptionExcerpt = desc.length > 120 ? desc.slice(0, 120).trim() + '…' : desc || undefined
   const skills = values.skills.slice(0, 10)
@@ -94,13 +103,17 @@ export function PostJobForm({ initial, onClose, onSaved }: PostJobFormProps) {
   const [values, setValues] = useState<PostJobFormValues>(() => {
     if (initial) {
       const payParts = initial.salaryDisplay?.split(/[–-]/) ?? []
+      const parts = initial.snippet && initial.snippet !== '—' ? initial.snippet.split(' · ').filter(Boolean) : []
+      const contractType = parts.includes('Permanent') ? 'Permanent' : parts.includes('Temporary') ? 'Temporary' : ''
+      const conditions = parts.filter((p) => p !== 'Permanent' && p !== 'Temporary')
       return {
         title: initial.title,
         company: initial.company,
         description: initial.descriptionExcerpt ?? '',
         skills: initial.skills ?? [],
         location: initial.location,
-        conditions: initial.snippet && initial.snippet !== '—' ? initial.snippet.split(' · ').filter(Boolean) : [],
+        contractType,
+        conditions,
         payMin: payParts[0]?.replace(/k$/i, '') ?? '',
         payMax: payParts[1]?.replace(/k$/i, '') ?? '',
       }
@@ -119,11 +132,26 @@ export function PostJobForm({ initial, onClose, onSaved }: PostJobFormProps) {
     setValues((prev) => ({ ...prev, [key]: value }))
   }, [])
 
+  const setContractType = useCallback((value: '' | 'Permanent' | 'Temporary') => {
+    setValues((prev) => ({ ...prev, contractType: prev.contractType === value ? '' : value }))
+  }, [])
+
   const toggleCondition = useCallback((label: string) => {
     setValues((prev) => {
-      const next = prev.conditions.includes(label)
-        ? prev.conditions.filter((c) => c !== label)
-        : [...prev.conditions, label]
+      const isChecked = prev.conditions.includes(label)
+      let next: string[]
+      if (isChecked) {
+        next = prev.conditions.filter((c) => c !== label)
+      } else {
+        const withoutSameGroup = prev.conditions.filter((c) => {
+          if (WORK_TYPE_GROUP.includes(label as typeof WORK_TYPE_GROUP[number]))
+            return !WORK_TYPE_GROUP.includes(c as typeof WORK_TYPE_GROUP[number])
+          if (WORK_PLACE_GROUP.includes(label as typeof WORK_PLACE_GROUP[number]))
+            return !WORK_PLACE_GROUP.includes(c as typeof WORK_PLACE_GROUP[number])
+          return true
+        })
+        next = [...withoutSameGroup, label]
+      }
       return { ...prev, conditions: next }
     })
   }, [])
@@ -198,23 +226,30 @@ export function PostJobForm({ initial, onClose, onSaved }: PostJobFormProps) {
     [values.skills, update, editingSkillIndex]
   )
 
+  const hasContract = values.contractType === 'Permanent' || values.contractType === 'Temporary'
+  const hasType = WORK_TYPE_GROUP.some((opt) => values.conditions.includes(opt))
+  const hasLocation = WORK_PLACE_GROUP.some((opt) => values.conditions.includes(opt))
+  const hasJobAttributes = hasContract && hasType && hasLocation
+
   const handleSubmit = useCallback(
     (status: UserJobStatus) => (e: React.FormEvent) => {
       e.preventDefault()
       if (overLimit) return
       if (!values.title.trim() || !values.company.trim() || !values.location.trim()) return
       if (!values.description.trim()) return
+      if (!hasJobAttributes) return
 
       const record = buildUserJobRecord(values, status, initial?.id)
       saveUserJob(record)
       onSaved()
       onClose()
     },
-    [values, overLimit, initial?.id, onSaved, onClose]
+    [values, overLimit, hasJobAttributes, initial?.id, onSaved, onClose]
   )
 
   const canPublish =
     !overLimit &&
+    hasJobAttributes &&
     values.title.trim().length > 0 &&
     values.company.trim().length > 0 &&
     values.location.trim().length > 0 &&
@@ -321,32 +356,65 @@ export function PostJobForm({ initial, onClose, onSaved }: PostJobFormProps) {
       </div>
 
       <div className="form-group">
-        <label htmlFor="post-job-location">Location *</label>
+        <label htmlFor="post-job-location">Place *</label>
         <input
           id="post-job-location"
           type="text"
           value={values.location}
           onChange={(e) => update('location', e.target.value)}
-          placeholder="e.g. London, or Remote"
+          placeholder="e.g. London"
           required
         />
       </div>
 
-      <div className="form-group">
-        <span className="post-job-form__label">Conditions (select at least one)</span>
-        <div className="post-job-form__conditions">
-          {CONDITIONS_OPTIONS.map((opt) => (
-            <label key={opt} className="post-job-form__checkbox-label">
-              <input
-                type="checkbox"
-                checked={values.conditions.includes(opt)}
-                onChange={() => toggleCondition(opt)}
-              />
-              <span>{opt}</span>
-            </label>
-          ))}
+      <fieldset className="post-job-form__fieldset">
+        <legend className="post-job-form__legend">Job Attributes *</legend>
+        <div className="form-group">
+          <span className="post-job-form__label">Contract</span>
+          <div className="post-job-form__conditions post-job-form__conditions--inline">
+            {CONTRACT_TYPE_OPTIONS.map((opt) => (
+              <label key={opt} className="post-job-form__checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={values.contractType === opt}
+                  onChange={() => setContractType(opt)}
+                />
+                <span>{opt}</span>
+              </label>
+            ))}
+          </div>
         </div>
-      </div>
+        <div className="form-group">
+          <span className="post-job-form__label">Type</span>
+          <div className="post-job-form__conditions post-job-form__conditions--inline">
+            {WORK_TYPE_GROUP.map((opt) => (
+              <label key={opt} className="post-job-form__checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={values.conditions.includes(opt)}
+                  onChange={() => toggleCondition(opt)}
+                />
+                <span>{opt}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+        <div className="form-group">
+          <span className="post-job-form__label">Location</span>
+          <div className="post-job-form__conditions post-job-form__conditions--inline">
+            {WORK_PLACE_GROUP.map((opt) => (
+              <label key={opt} className="post-job-form__checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={values.conditions.includes(opt)}
+                  onChange={() => toggleCondition(opt)}
+                />
+                <span>{opt}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      </fieldset>
 
       <div className="form-group post-job-form__pay">
         <span className="post-job-form__label">Pay range (optional)</span>
@@ -377,7 +445,7 @@ export function PostJobForm({ initial, onClose, onSaved }: PostJobFormProps) {
           type="button"
           className="form-button--secondary"
           onClick={handleSubmit('draft')}
-          disabled={!values.title.trim() || !values.company.trim() || !values.location.trim() || !values.description.trim() || overLimit}
+          disabled={!values.title.trim() || !values.company.trim() || !values.location.trim() || !values.description.trim() || !hasJobAttributes || overLimit}
         >
           Save as draft
         </button>
