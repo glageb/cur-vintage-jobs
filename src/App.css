@@ -262,40 +262,38 @@
   text-transform: lowercase;
 }
 
-/* Double horizontal rule (newspaper style) */
+/* Single horizontal rule before description */
 .job-card__rule {
   border: none;
   height: 0;
-  min-height: 6px;
   margin: 0.6rem 0;
   padding: 0;
   border-top: 1px solid var(--rule);
-  position: relative;
 }
 
-.job-card__rule::after {
-  content: '';
-  display: block;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 4px;
-  border-top: 1px solid var(--rule);
+.job-card__skills-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  margin: 0 0 0.75rem;
 }
 
-.job-card__skills-label {
-  font-family: 'Libre Baskerville', Georgia, serif;
-  font-size: 0.75rem;
-  font-weight: 600;
+.job-card__skills-icon {
+  flex-shrink: 0;
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-top: 0.15rem;
   color: var(--ink-muted);
-  margin: 0 0 0.35rem;
 }
 
 .job-card__skills-list {
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: flex-start;
   gap: 0.35rem;
-  margin: 0 0 0.75rem;
+  min-width: 0;
+  flex: 1 1 0;
 }
 
 .job-card__skill-tag {
@@ -419,4 +417,313 @@
   background: var(--ink);
   color: var(--newsprint);
   border-color: var(--ink);
+}
+
+/* Post job modal */
+.post-job-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 28, 28, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.post-job-modal {
+  background: var(--card-bg);
+  border: 1px solid var(--ink);
+  max-width: 28rem;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px var(--shadow);
+}
+
+.post-job-form__title {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--rule);
+}
+
+.post-job-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.post-job-form textarea {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 1rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--ink);
+  border-radius: 0;
+  width: 100%;
+  resize: vertical;
+  min-height: 4rem;
+}
+
+.post-job-form__word-count {
+  font-weight: 400;
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+}
+
+.post-job-form__input--error {
+  border-color: #8b2e2e;
+}
+
+.post-job-form__error {
+  font-size: 0.8rem;
+  color: #8b2e2e;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.post-job-form__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.post-job-form__conditions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+}
+
+.post-job-form__checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.post-job-form__checkbox-label input {
+  min-width: auto;
+  width: auto;
+}
+
+.post-job-form__skills-add {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.post-job-form__skills-add input {
+  flex: 1;
+  min-width: 0;
+}
+
+.post-job-form__add-btn {
+  flex-shrink: 0;
+}
+
+.post-job-form__skills-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.post-job-form__skill-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.post-job-form__skill-row:last-child {
+  border-bottom: none;
+}
+
+.post-job-form__skill-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.95rem;
+}
+
+.post-job-form__skill-actions {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.post-job-form__skill-btn {
+  padding: 0.25rem 0.4rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.post-job-form__skill-btn:hover:not(:disabled) {
+  background: var(--border);
+}
+
+.post-job-form__skill-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.post-job-form__skill-edit-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.95rem;
+  padding: 0.35rem 0.5rem;
+}
+
+.post-job-form__pay-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.post-job-form__pay-row input {
+  flex: 1;
+  min-width: 6rem;
+}
+
+.post-job-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.post-job-form__actions .form-button--secondary {
+  margin-right: auto;
+}
+
+.post-job-form__submit {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.55rem 1.25rem;
+  background: var(--ink);
+  color: var(--newsprint);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+}
+
+.post-job-form__submit:hover:not(:disabled) {
+  background: var(--accent);
+}
+
+.post-job-form__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* My job posts view */
+.my-jobs {
+  margin-bottom: 2rem;
+}
+
+.my-jobs__header {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--rule);
+}
+
+.my-jobs__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.my-jobs__row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+}
+
+.my-jobs__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.my-jobs__title {
+  font-weight: 700;
+  display: block;
+}
+
+.my-jobs__meta {
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  margin-top: 0.2rem;
+  display: block;
+}
+
+.my-jobs__badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0;
+}
+
+.my-jobs__badge--draft {
+  background: var(--border);
+  color: var(--ink);
+}
+
+.my-jobs__badge--published {
+  background: var(--ink);
+  color: var(--card-bg);
+}
+
+.my-jobs__badge--unpublished {
+  background: var(--ink-muted);
+  color: var(--card-bg);
+}
+
+.my-jobs__actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.my-jobs__actions button {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--ink);
+  background: var(--card-bg);
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.my-jobs__actions button:hover {
+  background: var(--border);
+}
+
+.my-jobs__empty {
+  padding: 1rem;
+  color: var(--ink-muted);
+  font-size: 0.95rem;
 }

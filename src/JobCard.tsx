@@ -36,6 +36,10 @@ export function JobCard({ job, variant }: Props) {
         )}
       </div>
 
+      {job.snippet && job.snippet !== '—' && (
+        <p className="job-card__snippet">{job.snippet}</p>
+      )}
+
       <hr className="job-card__rule" aria-hidden />
 
       {hasDescription && (
@@ -46,11 +50,8 @@ export function JobCard({ job, variant }: Props) {
       )}
 
       {hasSkills && (
-        <>
-          <p className="job-card__skills-label">
-            <PocketKnife className="job-card__salary-icon" aria-hidden style={{ display: 'inline', marginRight: '0.25rem', verticalAlign: 'middle' }} />
-            Skills
-          </p>
+        <div className="job-card__skills-row">
+          <PocketKnife className="job-card__skills-icon" aria-hidden />
           <div className="job-card__skills-list">
             {job.skills.slice(0, 10).map((skill) => (
               <span key={skill} className="job-card__skill-tag">
@@ -58,7 +59,7 @@ export function JobCard({ job, variant }: Props) {
               </span>
             ))}
           </div>
-        </>
+        </div>
       )}
 
       <footer className="job-card__footer">

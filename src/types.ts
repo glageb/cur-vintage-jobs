@@ -8,13 +8,24 @@ export interface JobCard {
   salaryDisplay?: string
   /** One short line: contract type or telegraphic snippet when no salary */
   snippet: string
-  /** Posted date YYYY-MM-DD for "WIRED ON" line */
+  /** Posted date YYYY-MM-DD for "printed" line */
   posted?: string
   /** Short description excerpt (~120 chars) for card body */
   descriptionExcerpt?: string
   /** Inferred skills from title + description (max 10) */
   skills: string[]
   url: string
+}
+
+/** User-posted job stored in localStorage (extends JobCard with status) */
+export type UserJobStatus = 'draft' | 'published' | 'unpublished'
+
+export interface UserJobRecord extends JobCard {
+  status: UserJobStatus
+  /** ISO date string for "printed" display when updated */
+  updatedAt?: string
+  /** Word count of description (for My job posts display) */
+  wordCount?: number
 }
 
 /** Adzuna API raw result item */
