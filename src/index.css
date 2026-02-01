@@ -1,0 +1,30 @@
+:root {
+  /* Warmer newsprint / old paper */
+  --newsprint: #ebe4d8;
+  --ink: #1c1c1c;
+  --ink-muted: #5c5346;
+  --border: #b8a990;
+  --accent: #7a5c1a;
+  --card-bg: #f5f0e6;
+  --shadow: rgba(28, 28, 28, 0.06);
+  --rule: #1c1c1c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  background: var(--newsprint);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+#root {
+  min-height: 100vh;
+}

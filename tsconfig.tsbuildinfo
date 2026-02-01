@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/jobcard.tsx","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts","./src/api/adzuna.ts","./src/api/extractskills.ts","./src/api/geo.ts","./src/api/skills.ts"],"version":"5.6.3"}
